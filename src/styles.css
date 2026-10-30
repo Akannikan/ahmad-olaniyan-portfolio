@@ -380,9 +380,9 @@ a { color: inherit; text-decoration: none; }
   .mobile-menu-button { display: inline-grid; }
   .nav-actions > .theme-toggle, .nav-cta { display: none; }
   .hero { min-height: 0; padding-bottom: 82px; align-items: stretch; flex-direction: column; }
-  .hero-content { margin-top: 82px; }
+  .hero-content { margin-top: 32px; }
   .hero-title { margin-top: 27px; font-size: clamp(65px, 13vw, 100px); }
-  .hero-art { position: relative; top: auto; right: auto; bottom: auto; align-self: flex-end; width: 42%; max-width: 300px; margin: 30px 7% 0 0; opacity: .84; transform: none; }
+  .hero-art { position: relative; top: auto; right: auto; bottom: auto; order: -1; align-self: center; width: 90%; max-width: 520px; margin: 30px auto 0; opacity: .84; transform: none; }
   .portrait-frame { aspect-ratio: .92; }
   .hero-copy { max-width: 315px; }
   .hero-side-note { display: none; }
@@ -413,7 +413,7 @@ a { color: inherit; text-decoration: none; }
   .container, .nav-shell, .hero-content { width: calc(100% - 36px); }
   .brand-name { font-size: 8px; }
   .hero { padding-bottom: 82px; }
-  .hero-content { margin-top: 71px; }
+  .hero-content { margin-top: 30px; }
   .hero-kicker { font-size: 8px; gap: 7px; }
   .kicker-line { width: 20px; margin-inline: 2px; }
   .hero-title { margin: 27px 0 22px; font-size: clamp(62px, 17vw, 90px); }
@@ -423,9 +423,11 @@ a { color: inherit; text-decoration: none; }
   .hero-copy { max-width: 285px; margin-top: 13px; font-size: 12px; }
   .hero-actions { align-items: flex-start; flex-direction: column; gap: 3px; }
   .hero-actions .button-primary { min-height: 43px; }
+  .hero-cv-links { display: flex; flex-wrap: nowrap; align-items: center; }
+  .hero-cv-links .button { padding-inline: 8px; white-space: nowrap; }
   .social-row { gap: 13px; margin-top: 16px; }
   .social-link { font-size: 9px; }
-  .hero-art { width: 56%; margin: 30px 18px 0 0; opacity: .73; }
+  .hero-art { width: 90%; margin: 24px auto 0; opacity: .9; }
   .art-index { font-size: 6px; }
   .scroll-cue { bottom: 19px; }
   .hero-bottom-label { right: 18px; bottom: 20px; font-size: 6px; }

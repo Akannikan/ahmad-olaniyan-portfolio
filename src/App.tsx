@@ -241,8 +241,10 @@ function Hero() {
         <motion.p initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="hero-copy">{content.bio}</motion.p>
         <motion.div initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.52 }} className="hero-actions">
           <Link to="/projects" className="button button-primary">Explore my work <ArrowDownRight size={17} /></Link>
-          <button className="button button-quiet" onClick={() => void downloadCv(content)}>Download CV <Download size={15} /></button>
-          {content.cvUrl && <a className="button button-quiet" href={content.cvUrl} target="_blank" rel="noreferrer">Original CV <ExternalLink size={14} /></a>}
+          <div className="hero-cv-links">
+            <button className="button button-quiet" onClick={() => void downloadCv(content)}>Download CV <Download size={15} /></button>
+            {content.cvUrl && <a className="button button-quiet" href={content.cvUrl} target="_blank" rel="noreferrer">Original CV <ExternalLink size={14} /></a>}
+          </div>
         </motion.div>
         <SocialRow />
       </div>
