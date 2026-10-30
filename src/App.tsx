@@ -234,6 +234,11 @@ function Hero() {
       <div className="hero-content">
         <motion.div initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="hero-kicker"><span className="status-dot" /> DIGITAL CREATOR <span className="kicker-line" /> ILORIN, NIGERIA</motion.div>
         <motion.h1 initial={reduceMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.08 }} className="hero-title">Ideas into<br /><span className="outlined-word">impact<span className="hero-period">.</span></span></motion.h1>
+        <div className="hero-art" aria-label={content.portraitUrl ? 'Ahmad Olaniyan portrait' : 'Abstract portrait placeholder'}>
+          <div className="portrait-frame">{content.portraitUrl ? <img className="portrait-photo" src={content.portraitUrl} alt="Ahmad Olaniyan" /> : <><div className="portrait-orbit orbit-one" /><div className="portrait-orbit orbit-two" /><div className="portrait-abstract"><div className="portrait-sun" /><div className="portrait-silhouette"><span className="portrait-head" /><span className="portrait-body" /></div><span className="portrait-coordinate">8.50° N<br />4.55° E</span><span className="portrait-stamp">AO<br /><small>CREATIVE<br />SYSTEMS</small></span></div></>}</div>
+          <span className="art-index">FIG. 001 <span>— SELF-PORTRAIT IN PROGRESS</span></span>
+          <span className="art-spark"><Asterisk size={22} /></span>
+        </div>
         <motion.div initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="hero-role">
           <span className="role-label">CURRENTLY BUILDING AS</span>
           <AnimatePresence mode="wait"><motion.span key={roleWords[roleIndex]} className="role-value" initial={reduceMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={reduceMotion ? undefined : { opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>{roleWords[roleIndex]}</motion.span></AnimatePresence>
@@ -250,11 +255,6 @@ function Hero() {
       </div>
       <div className="hero-side-note"><span>01 — 06</span><span className="side-note-line" /><span>SCROLL TO EXPLORE</span></div>
       <a href="#intro" className="scroll-cue" aria-label="Scroll to introduction"><MousePointer2 size={15} /><span>SCROLL</span><ArrowDown size={14} /></a>
-      <div className="hero-art" aria-label={content.portraitUrl ? 'Ahmad Olaniyan portrait' : 'Abstract portrait placeholder'}>
-        <div className="portrait-frame">{content.portraitUrl ? <img className="portrait-photo" src={content.portraitUrl} alt="Ahmad Olaniyan" /> : <><div className="portrait-orbit orbit-one" /><div className="portrait-orbit orbit-two" /><div className="portrait-abstract"><div className="portrait-sun" /><div className="portrait-silhouette"><span className="portrait-head" /><span className="portrait-body" /></div><span className="portrait-coordinate">8.50° N<br />4.55° E</span><span className="portrait-stamp">AO<br /><small>CREATIVE<br />SYSTEMS</small></span></div></>}</div>
-        <span className="art-index">FIG. 001 <span>— SELF-PORTRAIT IN PROGRESS</span></span>
-        <span className="art-spark"><Asterisk size={22} /></span>
-      </div>
       <div className="hero-bottom-label"><span>WEB DEVELOPMENT</span><span>KNOWLEDGE SYSTEMS</span><span>ENTREPRENEURSHIP</span></div>
     </section>
   )

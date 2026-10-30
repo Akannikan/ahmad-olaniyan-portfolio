@@ -382,7 +382,7 @@ a { color: inherit; text-decoration: none; }
   .hero { min-height: 0; padding-bottom: 82px; align-items: stretch; flex-direction: column; }
   .hero-content { margin-top: 32px; }
   .hero-title { margin-top: 27px; font-size: clamp(65px, 13vw, 100px); }
-  .hero-art { position: relative; top: auto; right: auto; bottom: auto; order: -1; align-self: center; width: 90%; max-width: 520px; margin: 30px auto 0; opacity: .84; transform: none; }
+  .hero-art { position: relative; top: auto; right: auto; bottom: auto; width: 90%; max-width: 520px; margin: 30px auto 0; opacity: .84; transform: none; }
   .portrait-frame { aspect-ratio: .92; }
   .hero-copy { max-width: 315px; }
   .hero-side-note { display: none; }
