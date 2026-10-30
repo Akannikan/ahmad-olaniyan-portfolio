@@ -44,4 +44,11 @@ Use the `/admin` dashboard rather than changing source files. Replace starter in
 
 ## Deployment
 
-To publish this workspace without connecting a Git repository, create a Vercel account, run `npx vercel login`, and then `npx vercel` from the project directory. Add the three Supabase environment variables and (if used) the three EmailJS values in Vercel's project settings, then run `npx vercel --prod`. `vercel.json` configures React Router fallback. Add the same variables to Vercel as in `.env.local`, but never add a service-role key. Vercel will assign a `vercel.app` address; connect a custom domain in project settings only after you register/own a valid domain.
+The app is configured for Vercel, including the React Router fallback in `vercel.json`.
+
+1. Import the GitHub repository into Vercel and keep the detected Vite settings (`npm run build` and `dist`).
+2. In the Vercel project settings, add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_ADMIN_USER_ID` for Production and Preview. Copy their values from your local `.env.local`; never upload that file or add a Supabase service-role key.
+3. If the contact form is configured, also add `VITE_EMAILJS_SERVICE_ID`, `VITE_EMAILJS_TEMPLATE_ID`, and `VITE_EMAILJS_PUBLIC_KEY`.
+4. Deploy. Vercel assigns a `vercel.app` address and automatically builds future pushes to the connected GitHub branch. Redeploy after changing environment variables.
+
+Connect a custom domain in project settings only after you register/own a valid domain.
