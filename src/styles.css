@@ -99,6 +99,7 @@ a { color: inherit; text-decoration: none; }
 .hero-art { position: absolute; z-index: -1; width: 43%; max-width: 535px; right: max(5.5%, calc((100% - 1272px)/2)); top: 50%; transform: translateY(-48%); }
 .portrait-frame { position: relative; width: 100%; aspect-ratio: .95; overflow: hidden; border: 1px solid var(--line-strong); background: linear-gradient(135deg, var(--surface-2), var(--bg) 70%); }
 .portrait-frame:has(.portrait-flip-card) { perspective: 1000px; }
+.portrait-carousel-slide { position: absolute; inset: 0; }
 .portrait-flip-card { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.2,.75,.2,1); }
 .portrait-flip-card.is-flipped { transform: rotateY(180deg); }
 .portrait-flip-card:focus-visible { outline: 2px solid var(--accent); outline-offset: -5px; }

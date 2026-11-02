@@ -233,6 +233,7 @@ function Hero() {
       return
     }
     const interval = window.setInterval(() => {
+      setPortraitFlipped(false)
       setPortraitIndex(index => (index + 1) % portraitImages.length)
     }, 3000)
     return () => window.clearInterval(interval)

@@ -20,7 +20,7 @@ The dashboard requires Supabase Auth, a database table, and public portfolio ass
 4. Copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` to the project URL from **Project Settings → API** (for example, `https://your-project.supabase.co`, without `/rest/v1`), `VITE_SUPABASE_ANON_KEY`, and `VITE_ADMIN_USER_ID` to the UUID copied in step 3.
 5. Open `supabase/schema.sql`. Replace every occurrence of `REPLACE_WITH_ADMIN_USER_UUID` with that same admin UUID, then run the full script in the Supabase SQL Editor. This creates the portfolio table, public asset bucket, and access policies required for saving and uploading.
 6. Restart `npm run dev`, open `/admin`, and sign in with the admin user.
-7. Upload your profile photo, original CV PDF, project images, certificates, and gallery images; add your social profile URLs and edit your content. Save changes to publish them to the website.
+7. Upload up to three profile photos, an original CV PDF, project images, certificates, and gallery images; add your social profile URLs and edit your content. The home-page profile photos fade between images every three seconds, and clicking a photo flips it. The first photo is used in the generated CV. Save changes to publish them to the website.
 
 The dashboard restricts sign-in to the configured admin UUID, and Supabase row-level security enforces the same restriction on database writes and file uploads. Never add a Supabase service-role key to this frontend or to a `VITE_` variable. The public anon key is expected to be used in the browser; the RLS policies are the security boundary.
 
