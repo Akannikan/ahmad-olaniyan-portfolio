@@ -117,6 +117,7 @@ export type PortfolioContent = {
   gallery: GalleryItem[]
   contactEmail: string
   portraitUrl: string
+  portraitUrls: string[]
   cvUrl: string
 }
 
@@ -130,5 +131,6 @@ export const initialPortfolioContent: PortfolioContent = {
   gallery,
   contactEmail,
   portraitUrl: '',
+  portraitUrls: [],
   cvUrl: '',
 }
