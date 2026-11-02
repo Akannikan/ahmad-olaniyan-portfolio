@@ -235,7 +235,7 @@ function Hero() {
     const interval = window.setInterval(() => {
       setPortraitFlipped(false)
       setPortraitIndex(index => (index + 1) % portraitImages.length)
-    }, 3000)
+    }, 5000)
     return () => window.clearInterval(interval)
   }, [portraitImages.length])
   return (
@@ -247,7 +247,7 @@ function Hero() {
         <motion.h1 initial={reduceMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.08 }} className="hero-title hero-name">Olaniyan Ahmad</motion.h1>
         <p className="hero-manifesto">Ideas into <span className="outlined-word">impact.</span></p>
         <div className="hero-art" aria-label={portraitImages.length ? 'Ahmad Olaniyan portrait slideshow' : 'Abstract portrait placeholder'}>
-          <div className="portrait-frame">{portraitImages.length ? <AnimatePresence initial={false}><motion.div key={portraitImages[portraitIndex]} className="portrait-carousel-slide" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduceMotion ? 0 : 0.7, ease: 'easeInOut' }}><button className={`portrait-flip-card ${portraitFlipped ? 'is-flipped' : ''}`} type="button" onClick={() => setPortraitFlipped(value => !value)} aria-label={portraitFlipped ? 'Show profile photo' : 'Flip profile photo'} aria-pressed={portraitFlipped}><img className="portrait-photo" src={portraitImages[portraitIndex]} alt={`Ahmad Olaniyan portrait ${portraitIndex + 1}`} /><span className="portrait-back"><strong>Olaniyan Ahmad</strong><span>Software Engineer</span><small>Tap to flip back</small></span></button></motion.div></AnimatePresence> : <><div className="portrait-orbit orbit-one" /><div className="portrait-orbit orbit-two" /><div className="portrait-abstract"><div className="portrait-sun" /><div className="portrait-silhouette"><span className="portrait-head" /><span className="portrait-body" /></div><span className="portrait-stamp">AO<br /><small>SOFTWARE<br />ENGINEER</small></span></div></>}</div>
+          <div className="portrait-frame">{portraitImages.length ? <AnimatePresence initial={false}><motion.div key={portraitImages[portraitIndex]} className="portrait-carousel-slide" initial={{ opacity: 0, scale: 1.025 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.015 }} transition={{ duration: reduceMotion ? 0 : 1.1, ease: 'easeInOut' }}><button className={`portrait-flip-card ${portraitFlipped ? 'is-flipped' : ''}`} type="button" onClick={() => setPortraitFlipped(value => !value)} aria-label={portraitFlipped ? 'Show profile photo' : 'Flip profile photo'} aria-pressed={portraitFlipped}><img className="portrait-photo" src={portraitImages[portraitIndex]} alt={`Ahmad Olaniyan portrait ${portraitIndex + 1}`} /><span className="portrait-back"><strong>Olaniyan Ahmad</strong><span>Software Engineer</span><small>Tap to flip back</small></span></button></motion.div></AnimatePresence> : <><div className="portrait-orbit orbit-one" /><div className="portrait-orbit orbit-two" /><div className="portrait-abstract"><div className="portrait-sun" /><div className="portrait-silhouette"><span className="portrait-head" /><span className="portrait-body" /></div><span className="portrait-stamp">AO<br /><small>SOFTWARE<br />ENGINEER</small></span></div></>}</div>
           <span className="art-index">FIG. 001 <span>— SELF-PORTRAIT IN PROGRESS</span></span>
           <span className="art-spark"><Asterisk size={22} /></span>
         </div>
