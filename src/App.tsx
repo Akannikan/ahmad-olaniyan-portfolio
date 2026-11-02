@@ -224,7 +224,19 @@ function Hero() {
   const { content } = usePortfolio()
   const supportingRoles = content.professionalRoles.filter(role => role.toLowerCase() !== 'software engineer')
   const [portraitFlipped, setPortraitFlipped] = useState(false)
+  const portraitImages = (content.portraitUrls?.length ? content.portraitUrls : content.portraitUrl ? [content.portraitUrl] : []).slice(0, 3)
+  const [portraitIndex, setPortraitIndex] = useState(0)
   const reduceMotion = useReducedMotion()
+  useEffect(() => {
+    if (portraitImages.length < 2) {
+      setPortraitIndex(0)
+      return
+    }
+    const interval = window.setInterval(() => {
+      setPortraitIndex(index => (index + 1) % portraitImages.length)
+    }, 3000)
+    return () => window.clearInterval(interval)
+  }, [portraitImages.length])
   return (
     <section className="hero">
       <div className="hero-grid" />
@@ -233,8 +245,8 @@ function Hero() {
         <motion.div initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="hero-kicker"><span className="status-dot" /> SOFTWARE ENGINEER <span className="kicker-line" /> BUILDING FOR PEOPLE</motion.div>
         <motion.h1 initial={reduceMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.08 }} className="hero-title hero-name">Olaniyan Ahmad</motion.h1>
         <p className="hero-manifesto">Ideas into <span className="outlined-word">impact.</span></p>
-        <div className="hero-art" aria-label={content.portraitUrl ? 'Ahmad Olaniyan portrait' : 'Abstract portrait placeholder'}>
-          <div className="portrait-frame">{content.portraitUrl ? <button className={`portrait-flip-card ${portraitFlipped ? 'is-flipped' : ''}`} type="button" onClick={() => setPortraitFlipped(value => !value)} aria-label={portraitFlipped ? 'Show profile photo' : 'Flip profile photo'} aria-pressed={portraitFlipped}><img className="portrait-photo" src={content.portraitUrl} alt="Ahmad Olaniyan" /><span className="portrait-back"><strong>Olaniyan Ahmad</strong><span>Software Engineer</span><small>Tap to flip back</small></span></button> : <><div className="portrait-orbit orbit-one" /><div className="portrait-orbit orbit-two" /><div className="portrait-abstract"><div className="portrait-sun" /><div className="portrait-silhouette"><span className="portrait-head" /><span className="portrait-body" /></div><span className="portrait-stamp">AO<br /><small>SOFTWARE<br />ENGINEER</small></span></div></>}</div>
+        <div className="hero-art" aria-label={portraitImages.length ? 'Ahmad Olaniyan portrait slideshow' : 'Abstract portrait placeholder'}>
+          <div className="portrait-frame">{portraitImages.length ? <AnimatePresence initial={false}><motion.div key={portraitImages[portraitIndex]} className="portrait-carousel-slide" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduceMotion ? 0 : 0.7, ease: 'easeInOut' }}><button className={`portrait-flip-card ${portraitFlipped ? 'is-flipped' : ''}`} type="button" onClick={() => setPortraitFlipped(value => !value)} aria-label={portraitFlipped ? 'Show profile photo' : 'Flip profile photo'} aria-pressed={portraitFlipped}><img className="portrait-photo" src={portraitImages[portraitIndex]} alt={`Ahmad Olaniyan portrait ${portraitIndex + 1}`} /><span className="portrait-back"><strong>Olaniyan Ahmad</strong><span>Software Engineer</span><small>Tap to flip back</small></span></button></motion.div></AnimatePresence> : <><div className="portrait-orbit orbit-one" /><div className="portrait-orbit orbit-two" /><div className="portrait-abstract"><div className="portrait-sun" /><div className="portrait-silhouette"><span className="portrait-head" /><span className="portrait-body" /></div><span className="portrait-stamp">AO<br /><small>SOFTWARE<br />ENGINEER</small></span></div></>}</div>
           <span className="art-index">FIG. 001 <span>— SELF-PORTRAIT IN PROGRESS</span></span>
           <span className="art-spark"><Asterisk size={22} /></span>
         </div>

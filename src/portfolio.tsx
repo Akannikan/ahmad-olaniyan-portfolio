@@ -63,6 +63,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     if (data?.content) {
       const saved = data.content as Partial<PortfolioContent>
       const savedSocialLinks = saved.socialLinks ?? []
+      const portraitUrls = (saved.portraitUrls?.length ? saved.portraitUrls : saved.portraitUrl ? [saved.portraitUrl] : []).filter(Boolean).slice(0, 3)
       const socialLinks = [
         ...initialPortfolioContent.socialLinks.map(link => savedSocialLinks.find(savedLink => savedLink.label === link.label) ?? link),
         ...savedSocialLinks.filter(link => !initialPortfolioContent.socialLinks.some(defaultLink => defaultLink.label === link.label)),
@@ -75,6 +76,8 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
           : initialPortfolioContent.professionalRoles,
         socialLinks,
         gallery: saved.gallery ?? initialPortfolioContent.gallery,
+        portraitUrl: portraitUrls[0] ?? '',
+        portraitUrls,
       })
     }
     setSaveError('')
@@ -95,10 +98,12 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     if (!supabase) throw new Error('Supabase is not configured. Follow the setup steps in README.md.')
     const normalizedContent: PortfolioContent = {
       ...nextContent,
+      portraitUrls: (nextContent.portraitUrls?.length ? nextContent.portraitUrls : nextContent.portraitUrl ? [nextContent.portraitUrl] : []).filter(Boolean).slice(0, 3),
       professionalRoles: nextContent.professionalRoles.length
         ? ['Software Engineer', ...nextContent.professionalRoles.filter(role => role.toLowerCase() !== 'software engineer')]
         : initialPortfolioContent.professionalRoles,
     }
+    normalizedContent.portraitUrl = normalizedContent.portraitUrls[0] ?? ''
     setSaveError('')
     const { error } = await supabase.from('portfolio_content').upsert({ id: 'main', content: normalizedContent })
     if (error) {
