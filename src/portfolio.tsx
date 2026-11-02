@@ -38,7 +38,7 @@ type PortfolioContextValue = {
   loading: boolean
   saveError: string
   saveContent: (nextContent: PortfolioContent) => Promise<void>
-  uploadAsset: (file: File, kind: 'portrait' | 'cv' | 'project') => Promise<string>
+  uploadAsset: (file: File, kind: 'portrait' | 'cv' | 'project' | 'certificate' | 'gallery') => Promise<string>
 }
 
 const PortfolioContext = createContext<PortfolioContextValue | null>(null)
@@ -60,7 +60,23 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
       setLoading(false)
       return
     }
-    if (data?.content) setContent({ ...initialPortfolioContent, ...data.content })
+    if (data?.content) {
+      const saved = data.content as Partial<PortfolioContent>
+      const savedSocialLinks = saved.socialLinks ?? []
+      const socialLinks = [
+        ...initialPortfolioContent.socialLinks.map(link => savedSocialLinks.find(savedLink => savedLink.label === link.label) ?? link),
+        ...savedSocialLinks.filter(link => !initialPortfolioContent.socialLinks.some(defaultLink => defaultLink.label === link.label)),
+      ]
+      setContent({
+        ...initialPortfolioContent,
+        ...saved,
+        professionalRoles: saved.professionalRoles?.length
+          ? ['Software Engineer', ...saved.professionalRoles.filter(role => role.toLowerCase() !== 'software engineer')]
+          : initialPortfolioContent.professionalRoles,
+        socialLinks,
+        gallery: saved.gallery ?? initialPortfolioContent.gallery,
+      })
+    }
     setSaveError('')
     setLoading(false)
   }, [])
@@ -77,16 +93,22 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
 
   const saveContent = useCallback(async (nextContent: PortfolioContent) => {
     if (!supabase) throw new Error('Supabase is not configured. Follow the setup steps in README.md.')
+    const normalizedContent: PortfolioContent = {
+      ...nextContent,
+      professionalRoles: nextContent.professionalRoles.length
+        ? ['Software Engineer', ...nextContent.professionalRoles.filter(role => role.toLowerCase() !== 'software engineer')]
+        : initialPortfolioContent.professionalRoles,
+    }
     setSaveError('')
-    const { error } = await supabase.from('portfolio_content').upsert({ id: 'main', content: nextContent })
+    const { error } = await supabase.from('portfolio_content').upsert({ id: 'main', content: normalizedContent })
     if (error) {
       setSaveError(`Could not save your changes: ${error.message}`)
       throw error
     }
-    setContent(nextContent)
+    setContent(normalizedContent)
   }, [])
 
-  const uploadAsset = useCallback(async (file: File, kind: 'portrait' | 'cv' | 'project') => {
+  const uploadAsset = useCallback(async (file: File, kind: 'portrait' | 'cv' | 'project' | 'certificate' | 'gallery') => {
     if (!supabase) throw new Error('Supabase is not configured. Follow the setup steps in README.md.')
     const suffix = file.name.split('.').pop()?.toLowerCase() || 'bin'
     const path = `${kind}/${crypto.randomUUID()}.${suffix}`

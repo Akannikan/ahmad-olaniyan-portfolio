@@ -1,6 +1,6 @@
 # Ahmad Olaniyan — Portfolio
 
-A responsive React, TypeScript, and Vite portfolio with a private Supabase-backed dashboard at `/admin`. Update the profile, portrait, CV, project gallery, skills, and experience from the dashboard; saved content is shared with every visitor.
+A responsive React, TypeScript, and Vite portfolio with a private Supabase-backed dashboard at `/admin`. Update the profile, portrait, CV, projects, certificate images, gallery, skills, experience, and social links from the dashboard; saved content is shared with every visitor.
 
 ## Run locally
 
@@ -20,7 +20,7 @@ The dashboard requires Supabase Auth, a database table, and public portfolio ass
 4. Copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` to the project URL from **Project Settings → API** (for example, `https://your-project.supabase.co`, without `/rest/v1`), `VITE_SUPABASE_ANON_KEY`, and `VITE_ADMIN_USER_ID` to the UUID copied in step 3.
 5. Open `supabase/schema.sql`. Replace every occurrence of `REPLACE_WITH_ADMIN_USER_UUID` with that same admin UUID, then run the full script in the Supabase SQL Editor. This creates the portfolio table, public asset bucket, and access policies required for saving and uploading.
 6. Restart `npm run dev`, open `/admin`, and sign in with the admin user.
-7. Upload your portrait, original CV PDF, project images, and edit your content. Save changes to publish them to the website.
+7. Upload your profile photo, original CV PDF, project images, certificates, and gallery images; add your social profile URLs and edit your content. Save changes to publish them to the website.
 
 The dashboard restricts sign-in to the configured admin UUID, and Supabase row-level security enforces the same restriction on database writes and file uploads. Never add a Supabase service-role key to this frontend or to a `VITE_` variable. The public anon key is expected to be used in the browser; the RLS policies are the security boundary.
 
@@ -40,7 +40,7 @@ Never put an EmailJS private key or other secret in a `VITE_` variable. The publ
 
 ## Personalise the content
 
-Use the `/admin` dashboard rather than changing source files. Replace starter information with confirmed details before publishing. The LinkedIn and GitHub fields accept profile URLs; the email field is displayed publicly on the contact page.
+Use the `/admin` dashboard rather than changing source files. Replace starter information with confirmed details before publishing. Software Engineer remains the primary role; add other roles as supporting work. The dashboard accepts LinkedIn, GitHub, WhatsApp, Facebook, and TikTok URLs, and the email address is displayed publicly on the contact page. Add a certificate image to a Certification or Achievement timeline item, or upload and caption general images in the Gallery tab. Gallery images appear on the home page and at `/gallery`.
 
 ## Deployment
 

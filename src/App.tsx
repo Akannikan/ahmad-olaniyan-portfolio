@@ -6,11 +6,11 @@ import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import {
   ArrowDown, ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, Asterisk, BookOpen,
-  Check, Code2, Database, Download, ExternalLink, Github, Layers3, Linkedin,
-  Mail, Menu, MessageCircle, Moon, MousePointer2, Send, Server, Sparkles, Sun, Users, X,
+  Check, Code2, Database, Download, ExternalLink, Facebook, Github, Layers3, Linkedin,
+  Mail, Menu, MessageCircle, Moon, MousePointer2, Music2, Send, Server, Sparkles, Sun, Users, X,
 } from 'lucide-react'
 import AdminPage from './admin'
-import { initialPortfolioContent, type Project } from './data'
+import type { Project } from './data'
 import { usePortfolio } from './portfolio'
 
 const pageVariants = {
@@ -32,7 +32,7 @@ function PageMeta({ title, description }: { title: string; description: string }
 function safeExternalUrl(value: string) {
   try {
     const url = new URL(value)
-    return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : ''
+    return url.protocol === 'https:' || url.protocol === 'http:' || (url.protocol === 'mailto:' && url.pathname.includes('@')) ? url.href : ''
   } catch {
     return ''
   }
@@ -57,7 +57,7 @@ function Header({ theme, onToggle }: { theme: string; onToggle: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   useEffect(() => setMenuOpen(false), [location.pathname])
-  const nav = [['Home', '/'], ['About', '/about'], ['Projects', '/projects'], ['Skills', '/skills'], ['Experience', '/experience'], ['Contact', '/contact']]
+  const nav = [['Home', '/'], ['About', '/about'], ['Projects', '/projects'], ['Gallery', '/gallery'], ['Skills', '/skills'], ['Experience', '/experience'], ['Contact', '/contact']]
   return (
     <header className="site-header">
       <div className="nav-shell">
@@ -65,7 +65,7 @@ function Header({ theme, onToggle }: { theme: string; onToggle: () => void }) {
           <span className="brand-mark">AO<span>.</span></span>
           <span className="brand-name">AHMAD OLANIYAN</span>
         </Link>
-        <nav className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
+        <nav id="main-navigation" className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
           {nav.map(([label, to]) => (
             <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               {label}
@@ -76,7 +76,7 @@ function Header({ theme, onToggle }: { theme: string; onToggle: () => void }) {
         <div className="nav-actions">
           <ThemeToggle theme={theme} onToggle={onToggle} />
           <Link to="/contact" className="button button-small nav-cta">Let&apos;s talk <ArrowUpRight size={14} /></Link>
-          <button className="icon-button mobile-menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen}>
+          <button className="icon-button mobile-menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="main-navigation">
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
@@ -148,8 +148,7 @@ async function downloadCv(content: ReturnType<typeof usePortfolio>['content']) {
   pdf.setTextColor(198, 255, 107)
   pdf.text(content.professionalRoles.join('  /  '), left, 35, { maxWidth: pageWidth - 75 })
   pdf.setTextColor(211, 214, 207)
-  pdf.text('Ilorin, Kwara State, Nigeria', left, 45)
-  if (content.contactEmail) pdf.text(content.contactEmail, left, 51)
+  if (content.contactEmail) pdf.text(content.contactEmail, left, 45)
 
   if (content.portraitUrl) {
     try {
@@ -208,10 +207,13 @@ async function downloadCv(content: ReturnType<typeof usePortfolio>['content']) {
 
 function SocialRow() {
   const { content } = usePortfolio()
-  const socialLinks = content.socialLinks
+  const socialLinks = content.socialLinks.map(link => link.label === 'Email' && !link.href && content.contactEmail
+    ? { ...link, href: `mailto:${content.contactEmail}` }
+    : link)
+  const icons = { LinkedIn: Linkedin, GitHub: Github, Email: Mail, WhatsApp: MessageCircle, Facebook, TikTok: Music2 }
   return <div className="social-row">
-    {socialLinks.map((link, index) => {
-      const Icon = [Linkedin, Github, Mail][index]
+    {socialLinks.map(link => {
+      const Icon = icons[link.label as keyof typeof icons] ?? MessageCircle
       const href = safeExternalUrl(link.href)
       return href ? <a key={link.label} href={href} className="social-link" aria-label={link.label} target="_blank" rel="noreferrer"><Icon size={16} /><span>{link.label}</span><ArrowUpRight size={12} /></a> : <span key={link.label} className="social-link is-placeholder" title={`Add your ${link.label} URL`}><Icon size={16} /><span>Add {link.label}</span></span>
     })}
@@ -220,28 +222,25 @@ function SocialRow() {
 
 function Hero() {
   const { content } = usePortfolio()
-  const roleWords = content.professionalRoles.length ? content.professionalRoles : initialPortfolioContent.professionalRoles
-  const [roleIndex, setRoleIndex] = useState(0)
-  useEffect(() => {
-    const id = window.setInterval(() => setRoleIndex(index => (index + 1) % roleWords.length), 3000)
-    return () => window.clearInterval(id)
-  }, [roleWords.length])
+  const supportingRoles = content.professionalRoles.filter(role => role.toLowerCase() !== 'software engineer')
+  const [portraitFlipped, setPortraitFlipped] = useState(false)
   const reduceMotion = useReducedMotion()
   return (
     <section className="hero">
       <div className="hero-grid" />
       <div className="hero-glow" />
       <div className="hero-content">
-        <motion.div initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="hero-kicker"><span className="status-dot" /> DIGITAL CREATOR <span className="kicker-line" /> ILORIN, NIGERIA</motion.div>
-        <motion.h1 initial={reduceMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.08 }} className="hero-title">Ideas into<br /><span className="outlined-word">impact<span className="hero-period">.</span></span></motion.h1>
+        <motion.div initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="hero-kicker"><span className="status-dot" /> SOFTWARE ENGINEER <span className="kicker-line" /> BUILDING FOR PEOPLE</motion.div>
+        <motion.h1 initial={reduceMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.08 }} className="hero-title hero-name">Olaniyan Ahmad</motion.h1>
+        <p className="hero-manifesto">Ideas into <span className="outlined-word">impact.</span></p>
         <div className="hero-art" aria-label={content.portraitUrl ? 'Ahmad Olaniyan portrait' : 'Abstract portrait placeholder'}>
-          <div className="portrait-frame">{content.portraitUrl ? <img className="portrait-photo" src={content.portraitUrl} alt="Ahmad Olaniyan" /> : <><div className="portrait-orbit orbit-one" /><div className="portrait-orbit orbit-two" /><div className="portrait-abstract"><div className="portrait-sun" /><div className="portrait-silhouette"><span className="portrait-head" /><span className="portrait-body" /></div><span className="portrait-coordinate">8.50° N<br />4.55° E</span><span className="portrait-stamp">AO<br /><small>CREATIVE<br />SYSTEMS</small></span></div></>}</div>
+          <div className="portrait-frame">{content.portraitUrl ? <button className={`portrait-flip-card ${portraitFlipped ? 'is-flipped' : ''}`} type="button" onClick={() => setPortraitFlipped(value => !value)} aria-label={portraitFlipped ? 'Show profile photo' : 'Flip profile photo'} aria-pressed={portraitFlipped}><img className="portrait-photo" src={content.portraitUrl} alt="Ahmad Olaniyan" /><span className="portrait-back"><strong>Olaniyan Ahmad</strong><span>Software Engineer</span><small>Tap to flip back</small></span></button> : <><div className="portrait-orbit orbit-one" /><div className="portrait-orbit orbit-two" /><div className="portrait-abstract"><div className="portrait-sun" /><div className="portrait-silhouette"><span className="portrait-head" /><span className="portrait-body" /></div><span className="portrait-stamp">AO<br /><small>SOFTWARE<br />ENGINEER</small></span></div></>}</div>
           <span className="art-index">FIG. 001 <span>— SELF-PORTRAIT IN PROGRESS</span></span>
           <span className="art-spark"><Asterisk size={22} /></span>
         </div>
         <motion.div initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="hero-role">
-          <span className="role-label">CURRENTLY BUILDING AS</span>
-          <AnimatePresence mode="wait"><motion.span key={roleWords[roleIndex]} className="role-value" initial={reduceMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={reduceMotion ? undefined : { opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>{roleWords[roleIndex]}</motion.span></AnimatePresence>
+          <strong className="role-value">Software Engineer</strong>
+          {supportingRoles.length > 0 && <span className="role-supporting">Also: {supportingRoles.join(' · ')}</span>}
         </motion.div>
         <motion.p initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="hero-copy">{content.bio}</motion.p>
         <motion.div initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.52 }} className="hero-actions">
@@ -255,7 +254,7 @@ function Hero() {
       </div>
       <div className="hero-side-note"><span>01 — 06</span><span className="side-note-line" /><span>SCROLL TO EXPLORE</span></div>
       <a href="#intro" className="scroll-cue" aria-label="Scroll to introduction"><MousePointer2 size={15} /><span>SCROLL</span><ArrowDown size={14} /></a>
-      <div className="hero-bottom-label"><span>WEB DEVELOPMENT</span><span>KNOWLEDGE SYSTEMS</span><span>ENTREPRENEURSHIP</span></div>
+      <div className="hero-bottom-label"><span>SOFTWARE ENGINEERING</span><span>KNOWLEDGE SYSTEMS</span><span>ENTREPRENEURSHIP</span></div>
     </section>
   )
 }
@@ -298,36 +297,53 @@ function ProjectSection({ home = false }: { home?: boolean }) {
   </section>
 }
 
+function GallerySection({ preview = false }: { preview?: boolean }) {
+  const { content } = usePortfolio()
+  const images = preview ? content.gallery.slice(0, 3) : content.gallery
+  return <section className={`section gallery-section ${preview ? 'gallery-preview' : ''}`}>
+    <div className="container">
+      <div className="section-heading gallery-heading"><span className="section-index">07 / GALLERY</span><h2>Moments &amp; milestones</h2><p>A visual collection of work, learning, and meaningful moments.</p></div>
+      {images.length ? <div className="gallery-grid">{images.map((image, index) => <Reveal key={`${image.imageUrl}-${index}`} delay={index * 0.06}><figure className="gallery-card"><img src={image.imageUrl} alt={image.title || 'Portfolio gallery image'} loading="lazy" /><figcaption><strong>{image.title}</strong>{image.description && <span>{image.description}</span>}</figcaption></figure></Reveal>)}</div> : <p className="gallery-empty">Gallery images will appear here as they are added.</p>}
+      {preview && <div className="section-more"><span>GALLERY / MOMENTS</span><Link to="/gallery" className="text-link">View the gallery <ArrowRight size={15} /></Link></div>}
+    </div>
+  </section>
+}
+
 function Home() {
   const { content } = usePortfolio()
   return <>
-    <PageMeta title="Digital Creator" description="Ahmad Olaniyan — web developer, library and information science professional, and entrepreneur based in Ilorin, Nigeria." />
+    <PageMeta title="Software Engineer" description="Olaniyan Ahmad — software engineer, library and information science professional, and entrepreneur." />
     <Hero />
     <section className="section intro-section" id="intro"><div className="container intro-layout"><span className="section-index">01 / THE SHORT STORY</span><div className="intro-main"><Reveal><h2>I work where <span>technology</span>, knowledge, and possibility meet.</h2><p>{content.bio}</p><Link to="/about" className="text-link">A little more about me <ArrowRight size={15} /></Link></Reveal></div><div className="intro-aside"><span className="aside-index">AO / 001</span><span className="aside-asterisk"><Asterisk size={52} strokeWidth={0.8} /></span><span className="aside-caption">THREE PRACTICES.<br />ONE CURIOUS MIND.</span></div></div></section>
     <ProjectSection home />
+    <GallerySection preview />
     <section className="section skills-preview"><div className="container"><SectionHeading index="04" title="Tools for the work" note="A practical mix of digital craft and information practice." /><div className="skill-chip-grid">{content.skills.slice(0, 6).map((skill, i) => <Reveal key={skill.title} delay={i * 0.05}><div className="skill-chip"><span className="skill-icon">{renderSkillIcon(skill.icon)}</span><div><h3>{skill.title}</h3><span>{skill.items.slice(0, 2).join(' · ')}</span></div><ArrowUpRight size={16} /></div></Reveal>)}</div><div className="section-more"><span>CAPABILITIES / IN PROGRESS</span><Link to="/skills" className="text-link">Explore skills <ArrowRight size={15} /></Link></div></div></section>
     <section className="section journey-preview"><div className="container journey-layout"><div><SectionHeading index="05" title="A work in progress" note="The best work comes from staying curious, learning in public, and building with purpose." /></div><div className="journey-card"><span className="journey-label">THE JOURNEY SO FAR</span><div className="journey-metric"><span className="metric-mark">∞</span><span>Always learning.<br />Always building.</span></div><p>Explore my background, education, and the experiences shaping what I make next.</p><Link to="/experience" className="text-link">View experience <ArrowRight size={15} /></Link></div></div></section>
-    <section className="contact-banner"><div className="container contact-banner-inner"><div><span className="eyebrow">HAVE SOMETHING IN MIND?</span><h2>Let&apos;s build what&apos;s<br /><span>next.</span></h2></div><Link to="/contact" className="round-link"><ArrowUpRight size={24} /></Link><span className="banner-coordinate">08° 29&apos; N<br />04° 33&apos; E</span></div></section>
+    <section className="contact-banner"><div className="container contact-banner-inner"><div><span className="eyebrow">HAVE SOMETHING IN MIND?</span><h2>Let&apos;s build what&apos;s<br /><span>next.</span></h2></div><Link to="/contact" className="round-link"><ArrowUpRight size={24} /></Link></div></section>
   </>
 }
 
 function About() {
   const { content } = usePortfolio()
   return <PageShell title="About" subtitle="A builder, an organiser, an optimist." index="02" description="Learn more about Ahmad's work across web development, information science, and entrepreneurship.">
-    <div className="about-lead"><Reveal><p className="lead-statement">{content.bio}<span>.</span></p></Reveal><Reveal delay={0.1}><p className="body-copy">I&apos;m Ahmad Olaniyan, based in Ilorin, Kwara State, Nigeria. I&apos;m interested in the places where people, information, and technology come together—and in making those connections useful.</p><p className="body-copy">My work and interests span web development, Library and Information Science, and entrepreneurship. I&apos;m motivated by thoughtful problem-solving, continuous learning, and the possibility of turning a good idea into something people can use.</p></Reveal></div>
+    <div className="about-lead"><Reveal><p className="lead-statement">{content.bio}<span>.</span></p></Reveal><Reveal delay={0.1}><p className="body-copy">I&apos;m Olaniyan Ahmad, a software engineer interested in the places where people, information, and technology come together—and in making those connections useful.</p><p className="body-copy">My primary focus is software engineering, complemented by Library and Information Science and entrepreneurship. I&apos;m motivated by thoughtful problem-solving, continuous learning, and the possibility of turning a good idea into something people can use.</p></Reveal></div>
     <div className="values-grid"><div className="mini-section-label">WHAT GUIDES ME</div>{[{ n: '01', t: 'Make it useful', d: 'Good ideas should solve real problems and feel clear to the people using them.' }, { n: '02', t: 'Stay curious', d: 'Keep learning, question assumptions, and stay open to better ways of working.' }, { n: '03', t: 'Build with care', d: 'Bring intention and integrity to the details, not just the end result.' }].map(item => <Reveal key={item.n}><div className="value-card"><span>{item.n} / VALUE</span><h3>{item.t}</h3><p>{item.d}</p></div></Reveal>)}</div>
     <TimelineBlock title="The path so far" />
     <div className="placeholder-note"><Asterisk size={17} /> Add verified biographical details, institutions, dates, certifications, and achievements to personalise this page.</div>
   </PageShell>
 }
 
-function PageShell({ title, subtitle, index, description, children }: { title: string; subtitle: string; index: string; description: string; children: ReactNode }) {
-  return <><PageMeta title={title} description={description} /><motion.main className="inner-page container" {...usePageMotion()}><div className="page-heading"><span className="eyebrow"><span className="status-dot" /> {index} / 06 — AHMAD OLANIYAN</span><h1>{title}<span>.</span></h1><p>{subtitle}</p></div>{children}</motion.main></>
+function PageShell({ title, subtitle, index, total = '06', description, children }: { title: string; subtitle: string; index: string; total?: string; description: string; children: ReactNode }) {
+  return <><PageMeta title={title} description={description} /><motion.main className="inner-page container" {...usePageMotion()}><div className="page-heading"><span className="eyebrow"><span className="status-dot" /> {index} / {total} — AHMAD OLANIYAN</span><h1>{title}<span>.</span></h1><p>{subtitle}</p></div>{children}</motion.main></>
 }
 
 function TimelineBlock({ title = 'Experience & milestones' }: { title?: string }) {
   const { content } = usePortfolio()
-  return <section className="timeline-section"><div className="timeline-head"><span className="mini-section-label">THE TIMELINE</span><h2>{title}</h2></div><div className="timeline">{content.timeline.map((item, index) => <Reveal key={`${item.type}-${index}`}><article className="timeline-item"><div className="timeline-marker"><span>{String(index + 1).padStart(2, '0')}</span><i /></div><div className="timeline-body"><div className="timeline-top"><span className="timeline-type">{item.type}</span><span className="timeline-date">{item.date}</span></div><h3>{item.title}</h3><span className="timeline-org">{item.organisation}</span><p>{item.description}</p></div></article></Reveal>)}</div></section>
+  return <section className="timeline-section"><div className="timeline-head"><span className="mini-section-label">THE TIMELINE</span><h2>{title}</h2></div><div className="timeline">{content.timeline.map((item, index) => <Reveal key={`${item.type}-${index}`}><article className="timeline-item"><div className="timeline-marker"><span>{String(index + 1).padStart(2, '0')}</span><i /></div><div className="timeline-body"><div className="timeline-top"><span className="timeline-type">{item.type}</span><span className="timeline-date">{item.date}</span></div><h3>{item.title}</h3><span className="timeline-org">{item.organisation}</span><p>{item.description}</p>{item.imageUrl && <a className="certificate-image-link" href={item.imageUrl} target="_blank" rel="noreferrer"><img className="certificate-image" src={item.imageUrl} alt={`${item.title} certificate or achievement`} loading="lazy" /><span>View image <ExternalLink size={14} /></span></a>}</div></article></Reveal>)}</div></section>
+}
+
+function GalleryPage() {
+  return <PageShell title="Gallery" subtitle="A visual collection of work, learning, and meaningful moments." index="07" total="07" description="View photographs and images from Olaniyan Ahmad's software engineering work and milestones."><GallerySection /></PageShell>
 }
 
 function ProjectsPage() {
@@ -406,7 +422,7 @@ function ContactForm() {
 
 function ContactPage() {
   const { content } = usePortfolio()
-  return <PageShell title="Let’s talk" subtitle="Good things start with a conversation." index="06" description="Get in touch with Ahmad Olaniyan about ideas, collaboration, and opportunities."><div className="contact-layout"><div className="contact-intro"><span className="mini-section-label">GET IN TOUCH</span><h2>Tell me what<br />you&apos;re thinking<span>.</span></h2><p>Have a project in mind, want to collaborate, or simply want to say hello? Send a note.</p>  <div className="contact-details">{content.contactEmail ? <a href={`mailto:${content.contactEmail}`}><span className="contact-detail-icon"><Mail size={17} /></span><span><small>EMAIL</small>{content.contactEmail}</span><ArrowUpRight size={14} /></a> : <div className="contact-detail-static"><span className="contact-detail-icon"><Mail size={17} /></span><span><small>EMAIL</small>Add your preferred email address</span></div>}<div className="contact-detail-static"><span className="contact-detail-icon"><MessageCircle size={17} /></span><span><small>LOCATION</small>Ilorin, Kwara State, Nigeria</span></div></div><div className="contact-socials"><span className="mini-section-label">ELSEWHERE</span><SocialRow /></div></div><div className="contact-form-wrap"><span className="form-caption">01 — SEND A MESSAGE</span><ContactForm /></div></div></PageShell>
+  return <PageShell title="Let’s talk" subtitle="Good things start with a conversation." index="06" description="Get in touch with Olaniyan Ahmad about ideas, collaboration, and opportunities."><div className="contact-layout"><div className="contact-intro"><span className="mini-section-label">GET IN TOUCH</span><h2>Tell me what<br />you&apos;re thinking<span>.</span></h2><p>Have a project in mind, want to collaborate, or simply want to say hello? Send a note.</p><div className="contact-details">{content.contactEmail ? <a href={`mailto:${content.contactEmail}`}><span className="contact-detail-icon"><Mail size={17} /></span><span><small>EMAIL</small>{content.contactEmail}</span><ArrowUpRight size={14} /></a> : <div className="contact-detail-static"><span className="contact-detail-icon"><Mail size={17} /></span><span><small>EMAIL</small>Add your preferred email address</span></div>}</div><div className="contact-socials"><span className="mini-section-label">ELSEWHERE</span><SocialRow /></div></div><div className="contact-form-wrap"><span className="form-caption">01 — SEND A MESSAGE</span><ContactForm /></div></div></PageShell>
 }
 
 function NotFound() {
@@ -422,7 +438,7 @@ function App() {
     document.documentElement.dataset.theme = theme
     localStorage.setItem('ao-theme', theme)
   }, [theme])
-  return <div className="app-shell"><ScrollToTop />{!isAdmin && <Header theme={theme} onToggle={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />}<AnimatePresence mode="wait"><Routes><Route path="/" element={<Home />} /><Route path="/about" element={<About />} /><Route path="/projects" element={<ProjectsPage />} /><Route path="/projects/:slug" element={<ProjectDetails />} /><Route path="/skills" element={<SkillsPage />} /><Route path="/experience" element={<ExperiencePage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/admin" element={<AdminPage />} /><Route path="*" element={<NotFound />} /></Routes></AnimatePresence>{!isAdmin && <Footer />}<BackToTop /></div>
+  return <div className="app-shell"><ScrollToTop />{!isAdmin && <Header theme={theme} onToggle={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />}<AnimatePresence mode="wait"><Routes><Route path="/" element={<Home />} /><Route path="/about" element={<About />} /><Route path="/projects" element={<ProjectsPage />} /><Route path="/projects/:slug" element={<ProjectDetails />} /><Route path="/skills" element={<SkillsPage />} /><Route path="/experience" element={<ExperiencePage />} /><Route path="/gallery" element={<GalleryPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/admin" element={<AdminPage />} /><Route path="*" element={<NotFound />} /></Routes></AnimatePresence>{!isAdmin && <Footer />}<BackToTop /></div>
 }
 
 export default App

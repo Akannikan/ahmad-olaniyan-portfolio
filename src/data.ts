@@ -18,6 +18,21 @@ export type Project = {
   githubUrl?: string
 }
 
+export type TimelineItem = {
+  type: string
+  title: string
+  organisation: string
+  date: string
+  description: string
+  imageUrl?: string
+}
+
+export type GalleryItem = {
+  title: string
+  description: string
+  imageUrl: string
+}
+
 export const projects: Project[] = [
   {
     slug: 'smartlibrary-ai',
@@ -72,7 +87,7 @@ export const skills = [
   { title: 'Professional Skills', items: ['Entrepreneurship', 'Communication', 'Continuous learning'], icon: 'users' },
 ]
 
-export const timeline = [
+export const timeline: TimelineItem[] = [
   { type: 'Education', title: 'Library and Information Science', organisation: 'Add institution name', date: 'Add dates', description: 'Add a short description of your studies and relevant focus areas.' },
   { type: 'Experience', title: 'Professional experience', organisation: 'Add organisation or role', date: 'Add dates', description: 'Add responsibilities, outcomes, and the context for this role.' },
   { type: 'Certification', title: 'Certifications & achievements', organisation: 'Add provider or issuing organisation', date: 'Add dates', description: 'Add verified certifications, awards, or achievements.' },
@@ -82,19 +97,24 @@ export const socialLinks = [
   { label: 'LinkedIn', href: '', short: 'in' },
   { label: 'GitHub', href: '', short: 'gh' },
   { label: 'Email', href: '', short: '@' },
+  { label: 'WhatsApp', href: '', short: 'wa' },
+  { label: 'Facebook', href: '', short: 'f' },
+  { label: 'TikTok', href: '', short: '♪' },
 ]
 
 export const contactEmail = ''
+export const gallery: GalleryItem[] = []
 
-export const professionalRoles = ['Web Developer', 'Library & Information Science Professional', 'Entrepreneur']
+export const professionalRoles = ['Software Engineer', 'Library & Information Science Professional', 'Entrepreneur']
 
 export type PortfolioContent = {
   bio: string
   professionalRoles: string[]
   projects: Project[]
   skills: typeof skills
-  timeline: typeof timeline
+  timeline: TimelineItem[]
   socialLinks: typeof socialLinks
+  gallery: GalleryItem[]
   contactEmail: string
   portraitUrl: string
   cvUrl: string
@@ -107,6 +127,7 @@ export const initialPortfolioContent: PortfolioContent = {
   skills,
   timeline,
   socialLinks,
+  gallery,
   contactEmail,
   portraitUrl: '',
   cvUrl: '',
