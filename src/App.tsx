@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import emailjs from '@emailjs/browser'
@@ -10,14 +10,9 @@ import {
   Mail, Menu, MessageCircle, Moon, MousePointer2, Music2, Send, Server, Sparkles, Sun, Users, X,
 } from 'lucide-react'
 import AdminPage from './admin'
+import FilesPage from './FilesPage'
 import type { Project } from './data'
 import { usePortfolio } from './portfolio'
-
-const pageVariants = {
-  initial: { opacity: 0, y: 12 },
-  enter: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -8 },
-}
 
 function PageMeta({ title, description }: { title: string; description: string }) {
   return <Helmet>
@@ -38,13 +33,6 @@ function safeExternalUrl(value: string) {
   }
 }
 
-function usePageMotion() {
-  const reduceMotion = useReducedMotion()
-  return reduceMotion
-    ? { initial: false as const, animate: { opacity: 1 }, exit: { opacity: 1 }, transition: { duration: 0 } }
-    : { initial: pageVariants.initial, animate: pageVariants.enter, exit: pageVariants.exit, transition: { duration: 0.32, ease: 'easeOut' as const } }
-}
-
 function ThemeToggle({ theme, onToggle }: { theme: string; onToggle: () => void }) {
   return (
     <button className="theme-toggle icon-button" onClick={onToggle} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>
@@ -57,7 +45,7 @@ function Header({ theme, onToggle }: { theme: string; onToggle: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   useEffect(() => setMenuOpen(false), [location.pathname])
-  const nav = [['Home', '/'], ['About', '/about'], ['Projects', '/projects'], ['Gallery', '/gallery'], ['Skills', '/skills'], ['Experience', '/experience'], ['Contact', '/contact']]
+  const nav = [['Home', '/'], ['About', '/about'], ['Projects', '/projects'], ['Gallery', '/gallery'], ['Files', '/files'], ['Skills', '/skills'], ['Experience', '/experience'], ['Contact', '/contact']]
   return (
     <header className="site-header">
       <div className="nav-shell">
@@ -87,6 +75,9 @@ function Header({ theme, onToggle }: { theme: string; onToggle: () => void }) {
 
 function Footer() {
   const { content } = usePortfolio()
+  const socialLinks = content.socialLinks.map(link => link.label === 'Email' && !link.href && content.contactEmail
+    ? { ...link, href: `mailto:${content.contactEmail}` }
+    : link)
   return (
     <footer className="site-footer">
       <div className="footer-top">
@@ -97,7 +88,12 @@ function Footer() {
         <span>© {new Date().getFullYear()} Ahmad Olaniyan</span>
         <span>Made with intention <Asterisk size={13} /></span>
         <div className="footer-links">
-          {content.socialLinks.map(link => safeExternalUrl(link.href) && <a key={link.label} href={safeExternalUrl(link.href)} aria-label={link.label} target="_blank" rel="noreferrer">{link.label}</a>)}
+          {socialLinks.map(link => {
+            const href = safeExternalUrl(link.href)
+            const Icon = socialIcon(link.label)
+            return href && <a key={link.label} className="social-link footer-social-link" href={href} aria-label={link.label} target="_blank" rel="noreferrer"><Icon size={17} /></a>
+          })}
+          <Link to="/files">Files &amp; Documents</Link>
           <Link to="/admin">Dashboard</Link>
         </div>
       </div>
@@ -205,17 +201,21 @@ async function downloadCv(content: ReturnType<typeof usePortfolio>['content']) {
   pdf.save('Ahmad-Olaniyan-CV.pdf')
 }
 
+function socialIcon(label: string) {
+  const icons = { LinkedIn: Linkedin, GitHub: Github, Email: Mail, WhatsApp: MessageCircle, Facebook, TikTok: Music2 }
+  return icons[label as keyof typeof icons] ?? MessageCircle
+}
+
 function SocialRow() {
   const { content } = usePortfolio()
   const socialLinks = content.socialLinks.map(link => link.label === 'Email' && !link.href && content.contactEmail
     ? { ...link, href: `mailto:${content.contactEmail}` }
     : link)
-  const icons = { LinkedIn: Linkedin, GitHub: Github, Email: Mail, WhatsApp: MessageCircle, Facebook, TikTok: Music2 }
   return <div className="social-row">
     {socialLinks.map(link => {
-      const Icon = icons[link.label as keyof typeof icons] ?? MessageCircle
+      const Icon = socialIcon(link.label)
       const href = safeExternalUrl(link.href)
-      return href ? <a key={link.label} href={href} className="social-link" aria-label={link.label} target="_blank" rel="noreferrer"><Icon size={16} /><span>{link.label}</span><ArrowUpRight size={12} /></a> : <span key={link.label} className="social-link is-placeholder" title={`Add your ${link.label} URL`}><Icon size={16} /><span>Add {link.label}</span></span>
+      return href ? <a key={link.label} href={href} className="social-link" aria-label={link.label} title={link.label} target="_blank" rel="noreferrer"><Icon size={19} /></a> : <span key={link.label} className="social-link is-placeholder" title={`Add your ${link.label} URL`} aria-label={`${link.label} link not configured`}><Icon size={19} /></span>
     })}
   </div>
 }
@@ -338,8 +338,10 @@ function Home() {
 
 function About() {
   const { content } = usePortfolio()
+  const portraitUrl = content.portraitUrls?.[0] || content.portraitUrl
   return <PageShell title="About" subtitle="A builder, an organiser, an optimist." index="02" description="Learn more about Ahmad's work across web development, information science, and entrepreneurship.">
     <div className="about-lead"><Reveal><p className="lead-statement">{content.bio}<span>.</span></p></Reveal><Reveal delay={0.1}><p className="body-copy">I&apos;m Olaniyan Ahmad, a software engineer interested in the places where people, information, and technology come together—and in making those connections useful.</p><p className="body-copy">My primary focus is software engineering, complemented by Library and Information Science and entrepreneurship. I&apos;m motivated by thoughtful problem-solving, continuous learning, and the possibility of turning a good idea into something people can use.</p></Reveal></div>
+    <Reveal><section className="about-profile" aria-label="Professional portrait"><div className="about-profile-frame">{portraitUrl ? <img src={portraitUrl} alt="Olaniyan Ahmad" /> : <div className="about-profile-empty"><UserRound size={36} /><span>PROFESSIONAL PORTRAIT</span><p>Add a profile photo from the dashboard to feature it here.</p><Link to="/admin" className="text-link">Open dashboard <ArrowUpRight size={14} /></Link></div>}</div><div className="about-profile-caption"><span className="mini-section-label">A LITTLE MORE PERSONAL</span><span>OLANIYAN AHMAD <Asterisk size={13} /></span></div></section></Reveal>
     <div className="values-grid"><div className="mini-section-label">WHAT GUIDES ME</div>{[{ n: '01', t: 'Make it useful', d: 'Good ideas should solve real problems and feel clear to the people using them.' }, { n: '02', t: 'Stay curious', d: 'Keep learning, question assumptions, and stay open to better ways of working.' }, { n: '03', t: 'Build with care', d: 'Bring intention and integrity to the details, not just the end result.' }].map(item => <Reveal key={item.n}><div className="value-card"><span>{item.n} / VALUE</span><h3>{item.t}</h3><p>{item.d}</p></div></Reveal>)}</div>
     <TimelineBlock title="The path so far" />
     <div className="placeholder-note"><Asterisk size={17} /> Add verified biographical details, institutions, dates, certifications, and achievements to personalise this page.</div>
@@ -347,7 +349,7 @@ function About() {
 }
 
 function PageShell({ title, subtitle, index, total = '06', description, children }: { title: string; subtitle: string; index: string; total?: string; description: string; children: ReactNode }) {
-  return <><PageMeta title={title} description={description} /><motion.main className="inner-page container" {...usePageMotion()}><div className="page-heading"><span className="eyebrow"><span className="status-dot" /> {index} / {total} — AHMAD OLANIYAN</span><h1>{title}<span>.</span></h1><p>{subtitle}</p></div>{children}</motion.main></>
+  return <><PageMeta title={title} description={description} /><main className="inner-page container"><div className="page-heading"><span className="eyebrow"><span className="status-dot" /> {index} / {total} — AHMAD OLANIYAN</span><h1>{title}<span>.</span></h1><p>{subtitle}</p></div>{children}</main></>
 }
 
 function TimelineBlock({ title = 'Experience & milestones' }: { title?: string }) {
@@ -445,13 +447,41 @@ function NotFound() {
 
 function App() {
   const location = useLocation()
+  const reduceMotion = useReducedMotion()
+  const navigationLocked = useRef(false)
+  const navigationTimer = useRef<number | undefined>(undefined)
   const isAdmin = location.pathname === '/admin'
   const [theme, setTheme] = useState(() => localStorage.getItem('ao-theme') ?? 'dark')
+  const handleInternalNavigation = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target
+    if (!(target instanceof Element)) return
+    const anchor = target.closest('a')
+    if (!anchor || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || anchor.target === '_blank') return
+    const destination = new URL(anchor.href, window.location.href)
+    if (destination.origin !== window.location.origin || destination.pathname === location.pathname || destination.hash && destination.pathname === location.pathname) return
+    if (navigationLocked.current) {
+      event.preventDefault()
+      event.stopPropagation()
+      return
+    }
+    if (reduceMotion) return
+    navigationLocked.current = true
+    navigationTimer.current = window.setTimeout(() => { navigationLocked.current = false }, 760)
+  }
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     localStorage.setItem('ao-theme', theme)
   }, [theme])
-  return <div className="app-shell"><ScrollToTop />{!isAdmin && <Header theme={theme} onToggle={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />}<AnimatePresence mode="wait"><Routes><Route path="/" element={<Home />} /><Route path="/about" element={<About />} /><Route path="/projects" element={<ProjectsPage />} /><Route path="/projects/:slug" element={<ProjectDetails />} /><Route path="/skills" element={<SkillsPage />} /><Route path="/experience" element={<ExperiencePage />} /><Route path="/gallery" element={<GalleryPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/admin" element={<AdminPage />} /><Route path="*" element={<NotFound />} /></Routes></AnimatePresence>{!isAdmin && <Footer />}<BackToTop /></div>
+  useEffect(() => () => window.clearTimeout(navigationTimer.current), [])
+  const pageTransition = reduceMotion
+    ? { initial: false as const, animate: { rotateX: 0, opacity: 1 }, exit: { rotateX: 0, opacity: 1 }, transition: { duration: 0 } }
+    : {
+      initial: { rotateX: 75, opacity: 0.92 },
+      animate: { rotateX: 0, opacity: 1 },
+      exit: { rotateX: -75, opacity: 0.92 },
+      transition: { duration: 0.36, ease: [0.22, 0.72, 0.18, 1] as const },
+    }
+  return <div className="app-shell" onClickCapture={handleInternalNavigation}><ScrollToTop />{!isAdmin && <Header theme={theme} onToggle={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />}<div className="route-stage"><AnimatePresence mode="wait" initial={false}><motion.div key={location.pathname} className="page-transition" style={{ transformPerspective: 1400, transformOrigin: 'top center', backfaceVisibility: 'hidden' }} {...pageTransition}><Routes location={location}><Route path="/" element={<Home />} /><Route path="/about" element={<About />} /><Route path="/projects" element={<ProjectsPage />} /><Route path="/projects/:slug" element={<ProjectDetails />} /><Route path="/skills" element={<SkillsPage />} /><Route path="/experience" element={<ExperiencePage />} /><Route path="/gallery" element={<GalleryPage />} /><Route path="/files" element={<FilesPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/admin" element={<AdminPage />} /><Route path="*" element={<NotFound />} /></Routes></motion.div></AnimatePresence></div>{!isAdmin && <Footer />}<BackToTop /></div>
 }
 
 export default App
