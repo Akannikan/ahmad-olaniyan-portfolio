@@ -28,6 +28,7 @@ type DocumentRecord = {
   title: string
   description: string
   file_name: string
+  file_extension: string
   file_type: string
   file_size: number
   storage_path: string
@@ -173,6 +174,7 @@ export default function FilesPage() {
         title: title.trim(),
         description: description.trim(),
         file_name: file.name,
+        file_extension: extension,
         file_type: file.type,
         file_size: file.size,
         storage_path: path,
@@ -240,6 +242,7 @@ export default function FilesPage() {
       if (uploadError) throw uploadError
       const { error: updateError } = await supabase.from('documents').update({
         file_name: replacement.name,
+        file_extension: extension,
         file_type: replacement.type,
         file_size: replacement.size,
         storage_path: newPath,
