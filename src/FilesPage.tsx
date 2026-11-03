@@ -133,7 +133,8 @@ export default function FilesPage() {
 
   const uploadFile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const input = event.currentTarget.elements.namedItem('document-file')
+    const form = event.currentTarget
+    const input = form.elements.namedItem('document-file')
     const file = input instanceof HTMLInputElement ? input.files?.[0] : undefined
     setError('')
     setNotice('')
@@ -185,7 +186,7 @@ export default function FilesPage() {
       setTitle('')
       setDescription('')
       setIsPublic(false)
-      event.currentTarget.reset()
+      form.reset()
       setNotice('File uploaded successfully.')
       await loadFiles()
     } catch (uploadError) {
@@ -280,9 +281,16 @@ export default function FilesPage() {
 
   const downloadFile = async (file: DocumentRecord) => {
     setError('')
+    const downloadWindow = window.open('', '_blank')
+    if (!downloadWindow) {
+      setError('Allow pop-ups to download this file.')
+      return
+    }
     try {
-      window.open(await getFileUrl(file, true), '_blank', 'noopener,noreferrer')
+      downloadWindow.opener = null
+      downloadWindow.location.href = await getFileUrl(file, true)
     } catch (downloadError) {
+      downloadWindow.close()
       setError(`Could not download the file: ${downloadError instanceof Error ? downloadError.message : 'Unexpected storage error.'}`)
     }
   }

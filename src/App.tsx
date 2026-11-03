@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import {
   ArrowDown, ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, Asterisk, BookOpen,
   Check, Code2, Database, Download, ExternalLink, Facebook, Github, Layers3, Linkedin,
-  Mail, Menu, MessageCircle, Moon, MousePointer2, Music2, Send, Server, Sparkles, Sun, Users, X,
+  Mail, Menu, MessageCircle, Moon, MousePointer2, Music2, Send, Server, Sparkles, Sun, UserRound, Users, X,
 } from 'lucide-react'
 import AdminPage from './admin'
 import FilesPage from './FilesPage'
