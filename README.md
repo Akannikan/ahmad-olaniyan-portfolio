@@ -1,6 +1,6 @@
 # Ahmad Olaniyan — Portfolio
 
-A responsive React, TypeScript, and Vite portfolio with a private Supabase-backed dashboard at `/admin`. Update the profile, portrait, CV, projects, certificate images, gallery, skills, experience, and social links from the dashboard; saved content is shared with every visitor.
+A responsive React, TypeScript, and Vite portfolio with a private Supabase-backed dashboard at `/admin`. Update the profile, portrait, CV, projects, certificate images, gallery, skills, experience, and social links from the dashboard; saved content is shared with every visitor. Public and private documents are managed at `/files`.
 
 ## Run locally
 
@@ -12,17 +12,18 @@ A responsive React, TypeScript, and Vite portfolio with a private Supabase-backe
 
 ## Admin dashboard and uploads
 
-The dashboard requires Supabase Auth, a database table, and public portfolio asset storage. The bucket is public so the portfolio can display images and visitors can download the CV. Only the configured admin user can upload or change files and saved content.
+The dashboard requires Supabase Auth, database tables, and Supabase Storage. Portfolio images use a public bucket. The `/files` library uses separate public and private buckets; visitors can access only documents the administrator explicitly marks public. Only the configured admin user can upload, replace, or delete files and saved content.
 
 1. Create a Supabase project.
 2. In **Authentication → Users**, create your private admin user. Do not enable public sign-ups.
 3. Copy that user's UUID from Supabase Auth.
 4. Copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` to the project URL from **Project Settings → API** (for example, `https://your-project.supabase.co`, without `/rest/v1`), `VITE_SUPABASE_ANON_KEY`, and `VITE_ADMIN_USER_ID` to the UUID copied in step 3.
-5. Open `supabase/schema.sql`. Replace every occurrence of `REPLACE_WITH_ADMIN_USER_UUID` with that same admin UUID, then run the full script in the Supabase SQL Editor. This creates the portfolio table, public asset bucket, and access policies required for saving and uploading.
+5. Open `supabase/schema.sql`. Replace every occurrence of `REPLACE_WITH_ADMIN_USER_UUID` with that same admin UUID, then run the full script in the Supabase SQL Editor. This creates the portfolio and documents tables, storage buckets, and row-level access policies required for saving and uploading. If you already ran an earlier version of this setup, run the updated script again to add document storage and access policies.
 6. Restart `npm run dev`, open `/admin`, and sign in with the admin user.
-7. Upload up to three profile photos, an original CV PDF, project images, certificates, and gallery images; add your social profile URLs and edit your content. The home-page profile photos transition with a subtle zoom and fade every five seconds, and clicking a photo flips it. The first photo is used in the generated CV. Save changes to publish them to the website.
+7. Upload up to three profile photos, an original CV PDF, project images, certificates, and gallery images; add your social profile URLs and edit your content. The home-page profile photos transition with a subtle zoom and fade every five seconds, and clicking a photo flips it. The first photo is used in the generated CV and shown on the About page. Save changes to publish them to the website.
+8. Open `/files` while signed in as the configured administrator to add, replace, preview, or delete documents. Select the public-download option only for files intended for anyone to access. Supported formats are PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, JPG/JPEG, PNG, SVG, and MP4, up to 25 MB per file. Private documents are listed only to the administrator and use short-lived signed URLs for access.
 
-The dashboard restricts sign-in to the configured admin UUID, and Supabase row-level security enforces the same restriction on database writes and file uploads. Never add a Supabase service-role key to this frontend or to a `VITE_` variable. The public anon key is expected to be used in the browser; the RLS policies are the security boundary.
+The dashboard restricts sign-in to the configured admin UUID, and Supabase row-level security and storage policies enforce the same restriction on database writes and file uploads/deletes. Storage bucket limits and document table constraints enforce file size, format, title, and description bounds independently of the browser UI. Never add a Supabase service-role key to this frontend or to a `VITE_` variable. The public anon key is expected to be used in the browser; the RLS policies are the security boundary.
 
 The CV button on the public homepage generates a profile PDF from your saved details and embeds your uploaded portrait as the passport/profile photo. If you also upload an original CV PDF, the site provides it as a separate download.
 

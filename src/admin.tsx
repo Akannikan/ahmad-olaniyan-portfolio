@@ -187,7 +187,7 @@ export default function AdminPage() {
 
   return <main className="admin-page container">
     <Helmet><title>Dashboard — Ahmad Olaniyan</title><meta name="robots" content="noindex,nofollow" /></Helmet>
-    <div className="admin-heading"><div><span className="eyebrow"><span className="status-dot" /> PRIVATE CONTENT MANAGEMENT</span><h1>Your dashboard<span>.</span></h1><p>Changes are published to the portfolio when you save.</p></div><div className="admin-heading-actions"><Link to="/" className="button button-small">View website <ExternalLink size={14} /></Link><button className="button button-small admin-signout" onClick={() => void signOut()}>Sign out <LogOut size={14} /></button></div></div>
+    <div className="admin-heading"><div><span className="eyebrow"><span className="status-dot" /> PRIVATE CONTENT MANAGEMENT</span><h1>Your dashboard<span>.</span></h1><p>Changes are published to the portfolio when you save.</p></div><div className="admin-heading-actions"><Link to="/files" className="button button-small">Files &amp; Documents <ExternalLink size={14} /></Link><Link to="/" className="button button-small">View website <ExternalLink size={14} /></Link><button className="button button-small admin-signout" onClick={() => void signOut()}>Sign out <LogOut size={14} /></button></div></div>
     <div className="admin-workspace">
       <nav className="admin-tabs" aria-label="Dashboard sections">{tabs.map(item => <button key={item.id} className={tab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); setNotice(''); setError('') }}>{item.icon}{item.label}</button>)}</nav>
       <section className="admin-editor">
