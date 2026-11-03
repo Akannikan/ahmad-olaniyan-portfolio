@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
-import { Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, NavLink, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import emailjs from '@emailjs/browser'
 import { Helmet } from 'react-helmet-async'
@@ -99,12 +99,6 @@ function Footer() {
       </div>
     </footer>
   )
-}
-
-function ScrollToTop() {
-  const { pathname } = useLocation()
-  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }) }, [pathname])
-  return null
 }
 
 function BackToTop() {
@@ -441,8 +435,7 @@ function ContactPage() {
 }
 
 function NotFound() {
-  const navigate = useNavigate()
-  return <PageShell title="Page not found" subtitle="This page may have moved, or it may never have existed." index="404" description="The page you're looking for could not be found."><div className="not-found"><span>404 / LOST IN THE INTERFACE</span><p>Let&apos;s get you back to somewhere useful.</p><button className="button button-primary" onClick={() => navigate('/')}>Back to home <ArrowRight size={16} /></button></div></PageShell>
+  return <PageShell title="Page not found" subtitle="This page may have moved, or it may never have existed." index="404" description="The page you're looking for could not be found."><div className="not-found"><span>404 / LOST IN THE INTERFACE</span><p>Let&apos;s get you back to somewhere useful.</p><Link className="button button-primary" to="/">Back to home <ArrowRight size={16} /></Link></div></PageShell>
 }
 
 function App() {
@@ -476,12 +469,12 @@ function App() {
   const pageTransition = reduceMotion
     ? { initial: false as const, animate: { rotateX: 0, opacity: 1 }, exit: { rotateX: 0, opacity: 1 }, transition: { duration: 0 } }
     : {
-      initial: { rotateX: 75, opacity: 0.92 },
+      initial: { rotateX: 90, opacity: 0.92 },
       animate: { rotateX: 0, opacity: 1 },
-      exit: { rotateX: -75, opacity: 0.92 },
+      exit: { rotateX: -90, opacity: 0.92 },
       transition: { duration: 0.36, ease: [0.22, 0.72, 0.18, 1] as const },
     }
-  return <div className="app-shell" onClickCapture={handleInternalNavigation}><ScrollToTop />{!isAdmin && <Header theme={theme} onToggle={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />}<div className="route-stage"><AnimatePresence mode="wait" initial={false}><motion.div key={location.pathname} className="page-transition" style={{ transformPerspective: 1400, transformOrigin: 'top center', backfaceVisibility: 'hidden' }} {...pageTransition}><Routes location={location}><Route path="/" element={<Home />} /><Route path="/about" element={<About />} /><Route path="/projects" element={<ProjectsPage />} /><Route path="/projects/:slug" element={<ProjectDetails />} /><Route path="/skills" element={<SkillsPage />} /><Route path="/experience" element={<ExperiencePage />} /><Route path="/gallery" element={<GalleryPage />} /><Route path="/files" element={<FilesPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/admin" element={<AdminPage />} /><Route path="*" element={<NotFound />} /></Routes></motion.div></AnimatePresence></div>{!isAdmin && <Footer />}<BackToTop /></div>
+  return <div className="app-shell" onClickCapture={handleInternalNavigation}><div className="route-stage"><AnimatePresence mode="wait" initial={false} onExitComplete={() => window.scrollTo({ top: 0, behavior: 'instant' })}><motion.div key={location.pathname} className="page-transition" style={{ transformPerspective: 1400, transformOrigin: 'top center', backfaceVisibility: 'hidden' }} {...pageTransition}>{!isAdmin && <Header theme={theme} onToggle={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />}<Routes location={location}><Route path="/" element={<Home />} /><Route path="/about" element={<About />} /><Route path="/projects" element={<ProjectsPage />} /><Route path="/projects/:slug" element={<ProjectDetails />} /><Route path="/skills" element={<SkillsPage />} /><Route path="/experience" element={<ExperiencePage />} /><Route path="/gallery" element={<GalleryPage />} /><Route path="/files" element={<FilesPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/admin" element={<AdminPage />} /><Route path="*" element={<NotFound />} /></Routes>{!isAdmin && <Footer />}</motion.div></AnimatePresence></div><BackToTop /></div>
 }
 
 export default App

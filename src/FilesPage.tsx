@@ -64,6 +64,7 @@ export default function FilesPage() {
   const [userId, setUserId] = useState<string | null>(null)
   const [files, setFiles] = useState<DocumentRecord[]>([])
   const [loading, setLoading] = useState(true)
+  const [filesLoadError, setFilesLoadError] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -79,14 +80,19 @@ export default function FilesPage() {
   const loadFiles = useCallback(async () => {
     if (!supabase) {
       setLoading(false)
+      setFilesLoadError(true)
       setError('File storage is not configured. Follow the Supabase setup in README.md.')
       return
     }
     const { data, error: loadError } = await supabase.from('documents').select('*').order('created_at', { ascending: false })
     if (loadError) {
-      setError(`Could not load files: ${loadError.message}`)
+      setFilesLoadError(true)
+      setError(loadError.code === 'PGRST205'
+        ? 'Files & Documents is not fully configured. Run the updated supabase/schema.sql script and wait for the Supabase schema cache to refresh.'
+        : `Could not load files: ${loadError.message}`)
     } else {
       setFiles((data ?? []) as DocumentRecord[])
+      setFilesLoadError(false)
       setError('')
     }
     setLoading(false)
@@ -318,6 +324,7 @@ export default function FilesPage() {
       <div className="filter-row" aria-label="Filter files">{filterOptions.map(option => <button key={option} type="button" className={`filter-button ${filter === option ? 'active' : ''}`} onClick={() => setFilter(option)}>{option}</button>)}</div>
     </div>
     {loading ? <p className="admin-loading" role="status">Loading files…</p>
+      : filesLoadError ? <p className="gallery-empty">Documents could not be loaded. Check the Supabase setup instructions and try again.</p>
       : visibleFiles.length ? <div className="document-grid">{visibleFiles.map(file => {
         const kind = fileKind(file.file_type)
         const canPreview = ['application/pdf', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/svg', 'video/mp4'].includes(file.file_type)

@@ -141,13 +141,29 @@ create policy "Public can read public documents"
 drop policy if exists "Configured admin can insert documents" on public.documents;
 create policy "Configured admin can insert documents"
   on public.documents for insert to authenticated
-  with check (auth.uid() = 'REPLACE_WITH_ADMIN_USER_UUID'::uuid);
+  with check (
+    auth.uid() = 'REPLACE_WITH_ADMIN_USER_UUID'::uuid
+    and exists (
+      select 1
+      from storage.objects
+      where name = storage_path
+        and bucket_id = case when is_public then 'portfolio-documents-public' else 'portfolio-documents-private' end
+    )
+  );
 
 drop policy if exists "Configured admin can update documents" on public.documents;
 create policy "Configured admin can update documents"
   on public.documents for update to authenticated
   using (auth.uid() = 'REPLACE_WITH_ADMIN_USER_UUID'::uuid)
-  with check (auth.uid() = 'REPLACE_WITH_ADMIN_USER_UUID'::uuid);
+  with check (
+    auth.uid() = 'REPLACE_WITH_ADMIN_USER_UUID'::uuid
+    and exists (
+      select 1
+      from storage.objects
+      where name = storage_path
+        and bucket_id = case when is_public then 'portfolio-documents-public' else 'portfolio-documents-private' end
+    )
+  );
 
 drop policy if exists "Configured admin can delete documents" on public.documents;
 create policy "Configured admin can delete documents"
@@ -218,6 +234,21 @@ create policy "Configured admin can upload portfolio documents"
       'image/jpeg', 'image/png', 'image/svg+xml', 'image/svg', 'video/mp4',
       'application/octet-stream'
     )
+    and case lower(split_part(name, '.', -1))
+      when 'pdf' then metadata->>'mimetype' = 'application/pdf'
+      when 'doc' then metadata->>'mimetype' in ('application/msword', 'application/octet-stream')
+      when 'docx' then metadata->>'mimetype' in ('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/octet-stream')
+      when 'xls' then metadata->>'mimetype' in ('application/vnd.ms-excel', 'application/octet-stream')
+      when 'xlsx' then metadata->>'mimetype' in ('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/octet-stream')
+      when 'ppt' then metadata->>'mimetype' in ('application/vnd.ms-powerpoint', 'application/octet-stream')
+      when 'pptx' then metadata->>'mimetype' in ('application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/octet-stream')
+      when 'jpg' then metadata->>'mimetype' = 'image/jpeg'
+      when 'jpeg' then metadata->>'mimetype' = 'image/jpeg'
+      when 'png' then metadata->>'mimetype' = 'image/png'
+      when 'svg' then metadata->>'mimetype' in ('image/svg+xml', 'image/svg')
+      when 'mp4' then metadata->>'mimetype' = 'video/mp4'
+      else false
+    end
   );
 
 drop policy if exists "Configured admin can update portfolio documents" on storage.objects;
